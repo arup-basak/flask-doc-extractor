@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from sqlalchemy.exc import IntegrityError
@@ -124,7 +125,12 @@ def update_invoice(sales_order_id):
         invoice = SalesOrderHeader.query.get_or_404(sales_order_id)
         data = request.json
         
-        invoice.OrderDate = data.get('orderDate', invoice.OrderDate)
+        # Ensure OrderDate is never None
+        order_date = data.get('orderDate')
+        if order_date:
+            invoice.OrderDate = order_date
+        elif invoice.OrderDate is None:
+            invoice.OrderDate = datetime.now().strftime('%Y-%m-%d')
         invoice.DueDate = data.get('dueDate', invoice.DueDate)
         invoice.CustomerName = data.get('customerName', invoice.CustomerName)
         invoice.CustomerAddress = data.get('customerAddress', invoice.CustomerAddress)
@@ -197,12 +203,17 @@ def _save_invoice_to_db(data: dict, document_path: str) -> int:
     try:
         invoice_number = data.get('invoiceNumber', '').strip()
         
+        # Ensure OrderDate has a default value if not provided
+        order_date = data.get('orderDate')
+        if not order_date:
+            order_date = datetime.now().strftime('%Y-%m-%d')
+        
         header = None
         if invoice_number:
             header = SalesOrderHeader.query.filter_by(InvoiceNumber=invoice_number).first()
         
         if header:
-            header.OrderDate = data.get('orderDate', header.OrderDate)
+            header.OrderDate = data.get('orderDate') or header.OrderDate or order_date
             header.DueDate = data.get('dueDate', header.DueDate)
             header.CustomerName = data.get('customerName', header.CustomerName)
             header.CustomerAddress = data.get('customerAddress', header.CustomerAddress)
@@ -226,7 +237,7 @@ def _save_invoice_to_db(data: dict, document_path: str) -> int:
                 db.session.add(item)
         else:
             header = SalesOrderHeader(
-                OrderDate=data.get('orderDate'),
+                OrderDate=order_date,
                 DueDate=data.get('dueDate'),
                 CustomerName=data.get('customerName', ''),
                 CustomerAddress=data.get('customerAddress', ''),
@@ -262,7 +273,11 @@ def _save_invoice_to_db(data: dict, document_path: str) -> int:
             if invoice_number:
                 header = SalesOrderHeader.query.filter_by(InvoiceNumber=invoice_number).first()
                 if header:
-                    header.OrderDate = data.get('orderDate', header.OrderDate)
+                    # Ensure OrderDate has a value
+                    order_date = data.get('orderDate')
+                    if not order_date:
+                        order_date = datetime.now().strftime('%Y-%m-%d')
+                    header.OrderDate = order_date or header.OrderDate or datetime.now().strftime('%Y-%m-%d')
                     header.DueDate = data.get('dueDate', header.DueDate)
                     header.CustomerName = data.get('customerName', header.CustomerName)
                     header.CustomerAddress = data.get('customerAddress', header.CustomerAddress)
