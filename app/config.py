@@ -28,7 +28,7 @@ class Config:
     
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or 'uploads'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
-    ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'txt'}
+    ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'webp', 'txt'}
     
     R2_ACCOUNT_ID = os.environ.get('R2_ACCOUNT_ID', '')
     R2_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID', '')

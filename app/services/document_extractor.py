@@ -22,7 +22,7 @@ class DocumentExtractor:
         if ext == 'txt':
             with open(file_path, 'r', encoding='utf-8') as f:
                 return f.read()
-        elif ext in ['png', 'jpg', 'jpeg']:
+        elif ext in ['png', 'jpg', 'jpeg', 'webp']:
             with open(file_path, 'rb') as f:
                 return base64.b64encode(f.read()).decode('utf-8')
         elif ext == 'pdf':
@@ -31,7 +31,7 @@ class DocumentExtractor:
         return ""
     
     def extract_invoice_data(self, file_path: str, file_type: str) -> Dict[str, Any]:
-        if file_type in ['png', 'jpg', 'jpeg']:
+        if file_type in ['png', 'jpg', 'jpeg', 'webp']:
             return self._extract_from_image(file_path, file_type)
         else:
             return self._extract_from_text(file_path)

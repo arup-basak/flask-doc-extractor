@@ -51,6 +51,7 @@ def upload_file():
                 'png': 'image/png',
                 'jpg': 'image/jpeg',
                 'jpeg': 'image/jpeg',
+                'webp': 'image/webp',
                 'txt': 'text/plain'
             }
             content_type = content_type_map.get(file_type, 'application/octet-stream')
